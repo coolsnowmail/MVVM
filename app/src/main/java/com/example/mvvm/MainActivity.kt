@@ -2,37 +2,30 @@ package com.example.mvvm
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import kotlinx.coroutines.withTimeout
 
 class MainActivity : AppCompatActivity() {
 
-    private val myLifeData = MyLifeData()
-    private lateinit var observer: Observer<String>
+    private lateinit var mViewModel: MainViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val editedText = findViewById<TextView>(R.id.textView)
-        val editedTextButton = findViewById<View>(R.id.EditTextViewButton)
-        val editTextLine = findViewById<TextView>(R.id.EditTextView)
-
-        editedTextButton.setOnClickListener {
-            myLifeData.setValueToLiveData(editTextLine.text.toString())
-        }
-
-        observer = Observer {
-            editedText.text = it
-        }
+        mViewModel = ViewModelProvider(this, ObserveFactory(application, "Factory"))[MainViewModel::class.java]
     }
 
     override fun onStart() {
+        val textTimer = findViewById<TextView>(R.id.textView)
+        textTimer.text = mViewModel.liveData.value.toString()
         super.onStart()
-        myLifeData.observe(this, observer)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        myLifeData.removeObserver(observer)
+        mViewModel.liveData.observe(this, Observer {
+            textTimer.text = it
+        })
     }
 }
