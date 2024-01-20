@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer
 class MainActivity : AppCompatActivity() {
 
     private val myLifeData = MyLifeData()
+    lateinit var observer: Observer<String>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -19,11 +20,22 @@ class MainActivity : AppCompatActivity() {
         val editedTextButton = findViewById<View>(R.id.EditTextViewButton)
         val editTextLine = findViewById<TextView>(R.id.EditTextView)
 
-//        editButton.setOnClickListener {
-//            println("!!! ${myLifeData.value}")
-//            myLifeData.setValueToLiveData(editedText.text.toString())
-//            println("!!! ${myLifeData.value}")
-//        }
-        myLifeData.observe(this, Observer {  })
+        editedTextButton.setOnClickListener {
+            myLifeData.setValueToLiveData(editTextLine.text.toString())
+        }
+
+        observer = Observer {
+            editedText.text = it
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        myLifeData.observe(this, observer)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        myLifeData.removeObserver(observer)
     }
 }
